@@ -153,4 +153,8 @@ th {
 }
 p{
     font-weight: bold;
+    font-family:'EB Garamond', 'Apple Garamond', 'Garamond', 'Georgia', serif;;
+}
+a:hover{
+    color: #ff0800;
 }
