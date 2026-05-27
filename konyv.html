@@ -1,0 +1,532 @@
+HTML
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Tűzhegy Varázslója - Kalandjáték</title>
+    <style>
+        :root {
+            --bg-color: #f4eccf;
+            --text-color: #2b1d0c;
+            --border-color: #8c6d3e;
+            --accent-color: #a62424;
+            --panel-bg: #faeed1;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: #1a120b;
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .book-container {
+            max-width: 800px;
+            background-color: var(--bg-color);
+            padding: 40px;
+            border-radius: 5px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 3px double var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.5em;
+            margin: 10px 0;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            color: var(--accent-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+
+        h3 {
+            color: #593e1a;
+            margin-top: 25px;
+        }
+
+        .meta-info {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px dashed var(--border-color);
+            margin: 30px 0;
+        }
+
+        /* Kalandlap stílus */
+        .kalandlap {
+            background-color: var(--panel-bg);
+            border: 2px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 40px;
+            border-radius: 4px;
+        }
+
+        .kalandlap h2 {
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            text-align: center;
+            background: rgba(255,255,255,0.5);
+        }
+
+        .stat-box label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .stat-box input[type="number"] {
+            width: 60px;
+            font-size: 1.2em;
+            padding: 5px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            background: #fff;
+        }
+
+        .textarea-box {
+            margin-top: 15px;
+        }
+
+        .textarea-box label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .textarea-box textarea {
+            width: 100%;
+            height: 80px;
+            box-sizing: border-box;
+            padding: 10px;
+            font-family: inherit;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            resize: vertical;
+        }
+
+        /* Fejezetpontok stílusa */
+        .section-point {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 0 4px 4px 0;
+            scroll-margin-top: 20px;
+        }
+
+        .section-number {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Linkek/Lapozók stílusa */
+        .choice-link {
+            color: var(--accent-color);
+            font-weight: bold;
+            text-decoration: none;
+            border-bottom: 1px dotted var(--accent-color);
+        }
+
+        .choice-link:hover {
+            color: #e63946;
+            background-color: rgba(166, 36, 36, 0.1);
+        }
+
+        /* Harc táblázat */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: rgba(140, 109, 62, 0.2);
+        }
+
+        .rules-list, .combat-steps {
+            padding-left: 20px;
+        }
+
+        .rules-list li, .combat-steps li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="book-container">
+
+    <header>
+        <p class="meta-info">A mű eredeti címe: The Warlock of Firetop Mountain</p>
+        <h1>A Tűzhegy Varázslója</h1>
+        <p><strong>Írta:</strong> Steve Jackson és Ian Livingstone (1982)</p>
+        <p><strong>Fordította:</strong> Fekete Miklós (1989)</p>
+        <p><strong>Illusztrálta:</strong> Russ Nicholson</p>
+    </header>
+
+    <div class="kalandlap">
+        <h2>Kalandlap</h2>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <label>ÜGYESSÉG</label>
+                <input type="number" id="ugyesseg-kezdo" placeholder="Kezdő">
+                <input type="number" id="ugyesseg-jelen" placeholder="Jelen">
+            </div>
+            <div class="stat-box">
+                <label>ÉLETERŐ</label>
+                <input type="number" id="eletero-kezdo" placeholder="Kezdő">
+                <input type="number" id="eletero-jelen" placeholder="Jelen">
+            </div>
+            <div class="stat-box">
+                <label>SZERENCSE</label>
+                <input type="number" id="szerencse-kezdo" placeholder="Kezdő">
+                <input type="number" id="szerencse-jelen" placeholder="Jelen">
+            </div>
+            <div class="stat-box">
+                <label>ÉLELMISZER</label>
+                <input type="number" id="elelem" value="10" min="0">
+                <small>(Kezdetben: 10)</small>
+            </div>
+        </div>
+        <div class="textarea-box">
+            <label>Felszerelés, Kincsek és Italok (2 adag):</label>
+            <textarea id="felszereles" placeholder="Kard, bőrpáncél, lámpás, választott varázsital..."></textarea>
+        </div>
+        <div class="textarea-box">
+            <label>Harc Szörnyekkel (Ellenség neve, ÜGYESSÉG, ÉLETERŐ):</label>
+            <textarea id="harc-jegyzet" placeholder="Pl. Barbár (Ü: 7, É: 6)"></textarea>
+        </div>
+    </div>
+
+    <hr>
+
+    <section id="bevezeto">
+        <h2>Bevezetés</h2>
+        <p>Ennek a könyvnek Te vagy a hőse. Te vívsz meg a kocka segítségével az óriásokkal és a szörnyekkel, magad döntesz, hogy merre haladj tovább, kivel barátkozz, csatázz. Nem pusztán az író fantáziája irányítja a történetet, hanem a te bátorságod, kíváncsiságod, leleményességed, kalandvágyad és józan eszed is.</p>
+        <p>Játék és regény egyszerre, amit a kezedben tartasz. Kalandos vállalkozás, amelybe belebukni is lehet, de ha jól döntesz, sikerrel jársz.</p>
+        <p>Így hát ezt a könyvet ne úgy olvasd, ahogy azt megszoktad. Mint látod, itt még az oldalak sincsenek megszámozva a bevezető után. A - hosszabb-rövidebb - bekezdések viselnek számokat egytől négyszázig. Ezek között előre-hátra lapozva haladsz előre a történetben a saját igényeid szerint. Ha kardot rántasz az ellenségre, máshová lapozol, mint amikor elbújnál előle.</p>
+        <p>Barbár harcosok, varázslók, szörnyetegek, törpék népesítik be ezt a fantasztikus világot. Mi kell ahhoz, hogy ne bukj el közöttük? Csak az, ami a mindennapi élethez is: ügyesség, jártasság, ötletesség; az, hogy felkészülten várd a nehézségeket. És Szerencse, amely nélkül az előző három talán mit sem ér, de ha csak erre számítasz, biztosan cserbenhagy.</p>
+        <p>Hogy mit jelent az ÜGYESSÉG, ÉLETERŐ és SZERENCSE ebben a könyvben, megtudod a következőkből. Ha netán nem lenne teljesen világos a dolog, ne törődj vele; bátran előre! Vágj neki az olvasásnak, menet közben minden a helyére kerül! De ha elfelejtenéd, hogyan kell jól megvívni egy csatát, hogyan menekülhetsz, hogyan gyógyíthatod magad a játék szabályai szerint, nyugodtan visszalapozhatsz.</p>
+    </section>
+
+    <section id="szabalyok">
+        <h2>Hogyan küzdj meg az alvilág teremtményeivel?</h2>
+        <p>Mielőtt belevágnál ebbe a kalandba, fel kell mérned, mennyire vagy erős, illetve gyenge. Van egy kardod, egy pajzsod, és egy hátizsákod étellel, itallal az útra. Felkészültél a feladatra, megtanultál a karddal bánni, és keményen edzettél, hogy erős légy.</p>
+        <p>Hogy megtudd, milyen hatékonyak voltak előkészületeid, dobókockával döntsd el kezdő ÜGYESSÉG és ÉLETERŐ pontjaidat. A lap tetején találod a <strong>Kalandlapot</strong>, amelyre feljegyezheted kalandod részleteit.</p>
+
+        <h3>ÜGYESSÉG, ÉLETERŐ ÉS SZERENCSE MEGHATÁROZÁSA</h3>
+        <ul class="rules-list">
+            <li><strong>ÜGYESSÉG:</strong> Dobj egy kockával. Adj 6-ot a dobott számhoz, és az összeget írd be a Kalandlap ÜGYESSÉG négyzetébe.</li>
+            <li><strong>ÉLETERŐ:</strong> Dobj két kockával, és az eredményhez adjál 12-t, a kapott számot írd be az ÉLETERŐ négyzetbe.</li>
+            <li><strong>SZERENCSE:</strong> Ehhez egy kockával dobj, és 6-ot adj az eredményhez, majd az összeget írd be a SZERENCSE négyzetbe.</li>
+        </ul>
+        <p>Pontosan kell vezetned a pontjaidat. De soha ne töröld ki a kezdeti pontjaidat, mert bár további ÜGYESSÉG, ÉLETERŐ és SZERENCSE pontokat szerezhetsz, összegük soha nem haladhatja meg a kezdeti értéket, kivéve néhány nagyon ritka alkalmat, amikor a megfelelő oldalon ezt az utasítást kapod.</p>
+
+        <h3>A CSATA</h3>
+        <p>Amikor szembe kerülsz egy lénnyel, jegyezd fel az ÜGYESSÉGÉT és ÉLETEREJÉT a Kalandlapodra. A harc menete a következő:</p>
+        <ol class="combat-steps">
+            <li>Dobj két dobókockával a teremtmény nevében. A kapott számot add az ő ÜGYESSÉG pontjaihoz. Az összeg az ő <strong>TÁMADÓEREJE</strong>.</li>
+            <li>Dobj két kockával most magadnak, és az eredményt add saját jelenlegi ÜGYESSÉG pontjaidhoz. Ez a te <strong>TÁMADÓERŐD</strong>.</li>
+            <li>Ha a te TÁMADÓERŐD nagyobb, megsebezted a lényt (ugorj a 4. lépésre). Ha az övé nagyobb, ő sebzett meg téged (ugorj az 5. lépésre). Egyenlőség esetén kivédtétek egymás csapását, új forduló indul.</li>
+            <li>Ha megsebezted a teremtményt, vonj le <strong>2 pontot az ÉLETEREJÉBŐL</strong> (vagy használj SZERENCSÉT).</li>
+            <li>Ha ő sebzett meg téged, vonj le <strong>2 pontot a saját ÉLETERŐDBŐL</strong> (vagy használj SZERENCSÉT).</li>
+            <li>Ellenőrizd a pontokat, majd kezdd a következő fordulót az 1. lépéstől. A csata a halálig tart (valamelyik fél ÉLETEREJE eléri a 0-át).</li>
+        </ol>
+
+        <h3>MENEKÜLÉS</h3>
+        <p>Ha egy oldalon megkapod a lehetőséget a menekülésre, megfutamodhatsz, de a teremtmény ekkor automatikusan sebet ejt rajtad (<strong>-2 ÉLETERŐ pont</strong> a gyávaság ára). Itt is használhatsz SZERENCSÉT.</p>
+
+        <h3>SZERENCSE PRÓBÁJA ÉS HASZNÁLATA</h3>
+        <p>Ha a könyv kéri, vagy ha csatában módosítani akarod a sebzést, <strong>"Tedd próbára SZERENCSÉD!"</strong>:</p>
+        <p>Dobj két kockával. Ha a kapott szám <strong>nem nagyobb</strong>, mint a jelenlegi SZERENCSE pontszámod, <strong>szerencsés</strong> voltál. Ha magasabb, <strong>balszerencséd</strong> volt. Minden próbálkozás után <strong>le kell vonnod 1 pontot</strong> a jelenlegi SZERENCSE pontszámodból!</p>
+        
+        <h4>A Szerencse használata csatában:</h4>
+        <ul>
+            <li><strong>Ha te sebezted meg a lényt:</strong> Sikeres szerencsepróba esetén +2 extra pontot vonsz le tőle (összesen 4-et). Balszerencse esetén a seb csak karcolás, 1 pontot vissza kell adnod neki (így csak 1 pontot veszít).</li>
+            <li><strong>Ha a lény sebzett meg téged:</strong> Sikeres szerencsepróba esetén kivédted a csapás nagyját, csak 1 pontot veszítesz (2 helyett). Balszerencse esetén a találat súlyosabb, +1 extra pontot veszítesz (összesen 3-at).</li>
+        </ul>
+
+        <h3>FELSZERELÉS ÉS ITALOK</h3>
+        <p>Kezdeti felszerelés: Kard, bőrpáncél, hátizsák (étel/ital/kincsek), lámpás, és <strong>egy darab</strong> varázsital az alábbiak közül (mely 2 adagot tartalmaz, és harcon kívül bármikor használható):</p>
+        <ul>
+            <li><strong>Az ÜGYESSÉG ITALA</strong> - kezdeti értékére állítja vissza az ÜGYESSÉGET.</li>
+            <li><strong>Az ERŐ ITALA</strong> - kezdeti értékére állítja vissza az ÉLETERŐT.</li>
+            <li><strong>A SZERENCSE ITALA</strong> - visszaállítja a SZERENCSÉT, és 1 ponttal növeli a <em>kezdeti</em> értéket is.</li>
+        </ul>
+
+        <h3>TANÁCSOK</h3>
+        <p>Készíts térképet! Csak egyetlen helyes út vezet át a labirintuson. Szükséged lesz bizonyos kulcsokra és tárgyakra is, hogy a végén kinyithasd a Varázsló ládáját.</p>
+    </section>
+
+    <section id="hatter">
+        <h2>Háttér</h2>
+        <p>Mielőtt elmennél a Tűzhegy birodalmába, néhány napot egy környékbeli falu lakosai között töltesz. A falusiak sok kalandvágyó embert láttak már a hegyhez vezető úton, de közülük csak nagyon kevesen tértek vissza. Úgy hírlik, a Varázsló a kincseit egy pompás ládában rejtegeti, melynek kulcsait különféle lények őrzik az útvesztőben. A bejáratot egy csapat bibircsókos arcú Goblin őrzi, beljebb pedig egy folyón kell átkelni, ahol a révész három aranyat kér a kompszolgáltatásért. Amikor eljön az indulás napja, a falusiak könnyes szemmel búcsúztatnak...</p>
+        <p><strong>És most lapozz!</strong></p>
+    </section>
+
+    <hr>
+
+    <main>
+        <div class="section-point" id="p1">
+            <span class="section-number">1.</span>
+            <p>Véget ért a kétnapi gyaloglás... A tisztással szemben egy barlang bejárata sötétlik. Meggyújtod a lámpásodat, és óvatosan bemerészkedsz a sötétségbe. Néhány méter után egy elágazáshoz érsz.</p>
+            <p>Ha nyugat felé indulsz, lapozz a <a class="choice-link" href="#p71">71-re</a>, ha kelet felé, lapozz a <a class="choice-link" href="#p278">278-ra</a>.</p>
+        </div>
+
+        <div class="section-point" id="p2">
+            <span class="section-number">2.</span>
+            <p>Tedd próbára Szerencséd! Ha szerencsés vagy, el tudsz menekülni anélkül, hogy felhívnád magadra az Ogre figyelmét. Ha nincs szerencséd, belerúgsz egy apró kőbe... és kihúzod a kardod: lapozz a <a class="choice-link" href="#p16">16-ra</a>. Ha szerencséd volt, óvatosan másszál vissza a keresztútig: lapozz a <a class="choice-link" href="#p269">269-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p3">
+            <span class="section-number">3.</span>
+            <p>A csengő tompa hangon megzendül... Az Öreg átevez a csónakkal, és három aranypénzt kér tőled: „Infláció van.” Ha megfizeted neki a három aranyat, lapozz a <a class="choice-link" href="#p272">272-re</a>, ha megfenyegeted, lapozz a <a class="choice-link" href="#p127">127-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p4">
+            <span class="section-number">4.</span>
+            <p>Egy észak-dél irányú folyosón találod magad. Ha északnak indulsz (ahonnan keletre kanyarodik az út), lapozz a <a class="choice-link" href="#p46">46-ra</a>. Ha dél felé veszed az utad (ahonnan szintén keletnek visz), lapozz a <a class="choice-link" href="#p332">332-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p5">
+            <span class="section-number">5.</span>
+            <p>A folyosó keleti falán durva gerendákból ácsolt kapubejáró áll. Hallgatózol, és egy jókedvű, dünnyögő hangot hallasz. Ha bekopogsz és bemész, lapozz a <a class="choice-link" href="#p97">97-re</a>, ha folytatod az utadat észak felé, lapozz a <a class="choice-link" href="#p292">292-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p6">
+            <span class="section-number">6.</span>
+            <p>Az ajtó hatalmas és szilárd, kilincs nincsen rajta. Nekirontasz, de mindhiába. Úgy döntesz, feladod, és azon a nyíláson mész keresztül, amely mellett elhaladtál. Lapozz a <a class="choice-link" href="#p89">89-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p7">
+            <span class="section-number">7.</span>
+            <p>Egy sebesen áramló folyó északi partján vagy, egy hatalmas föld alatti barlangban. Lapozz a <a class="choice-link" href="#p214">214-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p8">
+            <span class="section-number">8.</span>
+            <p>Az ajtó enged, és te belépsz a szobába... egy őrült Barbárral állsz szemben, és meg kell küzdened vele!</p>
+            <p><strong>Barbár:</strong> ÜGYESSÉG 7, ÉLETERŐ 6</p>
+            <p>A csata közben elmenekülhetsz az északi falon lévő ajtón át: lapozz a <a class="choice-link" href="#p189">189-re</a>. Ha legyőzöd a Barbárt, lapozz a <a class="choice-link" href="#p273">273-ra</a>.</p>
+        </div>
+
+        <div class="section-point" id="p9">
+            <span class="section-number">9.</span>
+            <p>Meghökkensz, hogy a blöff milyen jól sikerült. Ha megvizsgálod a Csontvázak szerszámait, lapozz a <a class="choice-link" href="#p34">34-re</a>. Ha az asztalok, padok fiókjait kutatod át, lapozz a <a class="choice-link" href="#p322">322-re</a>. Zajt hallasz az északi ajtó mögül, sietned kell!</p>
+        </div>
+
+        <div class="section-point" id="p10">
+            <span class="section-number">10.</span>
+            <p>Visszaérkeztél az elágazáshoz, és észak felé indulsz. Lapozz a <a class="choice-link" href="#p77">77-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p11">
+            <span class="section-number">11.</span>
+            <p>Követed a folyosót nyugat felé... egy csomó mágikus szerszám lázasan dolgozik a lépcsőkön. Miképp pihensz és figyeled őket, visszakapsz 2 ÉLETERŐ és 1 ÜGYESSÉG pontot (a maximumig). Ezután visszamész az útkereszteződéshez: észak felé lapozz a <a class="choice-link" href="#p366">366-ra</a>, déli irányba lapozz a <a class="choice-link" href="#p250">250-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p12">
+            <span class="section-number">12.</span>
+            <p>Amint meghúzod az ajtónyitó gombot, fülsiketítő csengő-bongó hang tölti be a folyosót... Hallod a lábdobogást. Lapozz a <a class="choice-link" href="#p161">161-re</a>. Ha legyőzted a teremtményt, visszatérhetsz az elágazáshoz (lapozz a <a class="choice-link" href="#p256">256-ra</a>), vagy ha megint megpróbálod a gombot, lapozz a <a class="choice-link" href="#p364">364-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p13">
+            <span class="section-number">13.</span>
+            <p>Megsebesültél a fejeden... négy fegyveres férfi közeledik. Megcsúszol a kavicsokon, és ellenfeleid rád vetik magukat. Lapozz a <a class="choice-link" href="#p282">282-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p14">
+            <span class="section-number">14.</span>
+            <p>Lépések közeledő zaját hallod. Meg kell küzdened a jövevénnyel: lapozz a <a class="choice-link" href="#p161">161-re</a>. Ha legyőzted a szörnyeteget, lapozz a <a class="choice-link" href="#p117">117-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p15">
+            <span class="section-number">15.</span>
+            <p>Ez egy elvarázsolt pihenőhely. Visszakaphatsz 2 ÉLETERŐ pontot és 1 ÜGYESSÉG pontot (ha vesztettél belőlük, a kezdeti értékig). Amint kész vagy, menj tovább a folyosón a <a class="choice-link" href="#p367">367-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p16">
+            <span class="section-number">16.</span>
+            <p>Miközben kirántod a kardodat, az Ogre meghall téged, és támadásba lendül.</p>
+            <p><strong>Ogre:</strong> ÜGYESSÉG 8, ÉLETERŐ 10</p>
+            <p>Ha legyőzted az Ogrét, lapozz az <a class="choice-link" href="#p50">50-re</a>. A második forduló után akár elmenekülhetsz visszafelé a folyosón: lapozz a <a class="choice-link" href="#p269">269-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p17">
+            <span class="section-number">17.</span>
+            <p>A cövekkel és a fakalapáccsal sarokba szorítod a Vámpírt. Megbotlasz, de a cövek kirepül a kezedből. Tedd próbára Szerencséd!</p>
+            <p>Ha szerencsés vagy, a cövek pontosan átütötte a Vámpír Szívét. Ha nincs szerencséd, csak súrolta (-3 Életerő a lénynek), és dühösen rád támad. Vagy elmenekülsz a nyugati ajtón át (lapozz a <a class="choice-link" href="#p380">380-ra</a>), vagy tovább küzdesz vele (lapozz a <a class="choice-link" href="#p144">144-re</a>). Ha megölted, keresd meg a kincsét: lapozz a <a class="choice-link" href="#p327">327-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p18">
+            <span class="section-number">18.</span>
+            <p>Továbbhaladsz nyugat felé... Tedd próbára Szerencséd! Ha szerencsés vagy, elkerülöd a vermet: jobban teszed, ha visszamész az elágazáshoz (lapozz a <a class="choice-link" href="#p261">261-re</a>). Ha nem volt szerencséd, belezuhansz a két méter mély verembe (-1 ÉLETERŐ pont): lapozz a <a class="choice-link" href="#p348">348-ra</a>.</p>
+        </div>
+
+        <div class="section-point" id="p19">
+            <span class="section-number">19.</span>
+            <p>Ezt a két gonosz teremtményt Goblinnak hívják. Egyenként támadnak rád:</p>
+            <ul>
+                <li><strong>Első Goblin:</strong> ÜGYESSÉG 5, ÉLETERŐ 5</li>
+                <li><strong>Második Goblin:</strong> ÜGYESSÉG 5, ÉLETERŐ 6</li>
+            </ul>
+            <p>Ha megölted a Goblinokat, lapozz a <a class="choice-link" href="#p317">317-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p20">
+            <span class="section-number">20.</span>
+            <p>Négy Törpe ront rád fejszével, egyenként:</p>
+            <table>
+                <tr><th>Ellenfél</th><th>ÜGYESSÉG</th><th>ÉLETERŐ</th></tr>
+                <tr><td>1. Törpe</td><td>7</td><td>4</td></tr>
+                <tr><td>2. Törpe</td><td>6</td><td>6</td></tr>
+                <tr><td>3. Törpe</td><td>7</td><td>5</td></tr>
+                <tr><td>4. Törpe</td><td>7</td><td>5</td></tr>
+            </table>
+            <p>Ha győztél, lapozz a <a class="choice-link" href="#p376">376-ra</a>. Ha menekülnél az ajtón át, lapozz a <a class="choice-link" href="#p291">291-re</a> (vond le a menekülési pontot!).</p>
+        </div>
+
+        <div class="section-point" id="p21">
+            <span class="section-number">21.</span>
+            <p>Az Orkok halottak. Megpróbálhatod lefeszíteni a láda lakatját a kardoddal (lapozz a <a class="choice-link" href="#p339">339-re</a>), vagy otthagyod, és átmész a nyitott ajtón (lapozz a <a class="choice-link" href="#p293">293-ra</a>).</p>
+        </div>
+
+        <div class="section-point" id="p22">
+            <span class="section-number">22.</span>
+            <p>Nem találsz titkos ajtót. A mennyezetről gázsugár csap le rád, elájulsz. Ismeretlen helyen térsz magadhoz: lapozz a <a class="choice-link" href="#p4">4-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p23">
+            <span class="section-number">23.</span>
+            <p>Erős ajtó zárja el az utat, az aljához bőrpánt van szegezve. Ha belépsz a szobába, lapozz a <a class="choice-link" href="#p326">326-ra</a>, ha visszafordulsz az elágazáshoz, lapozz a <a class="choice-link" href="#p229">229-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p24">
+            <span class="section-number">24.</span>
+            <p>A szörnyeteg varázsereje miatt a harmadik sebesülés után elveszítesz <strong>1 ÜGYESSÉG pontot</strong> is. Ha menekülni akarsz az északi ajtón át, fizesd meg a büntetést és lapozz a <a class="choice-link" href="#p360">360-ra</a>. Ha maradsz, a küzdelem folytatódik (minden 3. seb után -1 Ügyesség!). Ha győzöl, lapozz a <a class="choice-link" href="#p135">135-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p25">
+            <span class="section-number">25.</span>
+            <p>A nyugati falon lévő festmény Zagort, a Varázslót ábrázolja... Elvesztettél 1 ÜGYESSÉG pontot a félelemtől. Ha azonnal távozol az északi ajtón át, lapozz a <a class="choice-link" href="#p90">90-re</a> (ez Menekülésnek számít). Ha átkutatod a felszerelésed egy Varázsló elleni fegyverért, lapozz a <a class="choice-link" href="#p340">340-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p26">
+            <span class="section-number">26.</span>
+            <p>Elmondod Di Maggio varázsigéjét a Sárkánynak: <em>„Ekil Erif, Ekam Erif, Erif Erif, Di Maggio”</em>. A Sárkány szájában növekvő tűzgolyó szétpukkad, a bestia fájdalmában beleveti magát a sötétségbe. Lapozz a <a class="choice-link" href="#p371">371-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p27">
+            <span class="section-number">27.</span>
+            <p>Ez egy varázskard! Amíg ezt használod: <strong>+2 Kezdő ÜGYESSÉG</strong> és <strong>+2 Jelenlegi ÜGYESSÉG</strong>, valamint <strong>+2 SZERENCSE</strong> pontot kapsz. Dobd el a régi kardod és lapozz a <a class="choice-link" href="#p319">319-re</a>. Ha megtartod a régit, csak a Szerencséd nő 2-vel.</p>
+        </div>
+
+        <div class="section-point" id="p28">
+            <span class="section-number">28.</span>
+            <p>Az Ogre halott! Az erszényében 8 aranyat lelsz. Győzelmedért <strong>2 ÜGYESSÉG és 2 Szerencse pontot kapsz</strong>. Ugyanazon az úton hagyod el a barlangot: lapozz a <a class="choice-link" href="#p351">351-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p29">
+            <span class="section-number">29.</span>
+            <p>Nincs semmi értékes a barlangban. Visszafordulsz arra, amerről jöttél: lapozz a <a class="choice-link" href="#p375">375-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p30">
+            <span class="section-number">30.</span>
+            <p>Egy kötél lóg le a szikláról. Ha nem nyúlsz hozzá, visszafordulhatsz a keresztúthoz: lapozz a <a class="choice-link" href="#p267">267-re</a>. Ha meghúzod a kötelet, lapozz a <a class="choice-link" href="#p67">67-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p31">
+            <span class="section-number">31.</span>
+            <p>A Küklopsz szeméből szerzett ékkövet a Varázsló elé tartod, aki elgyengül. <strong>2 ÜGYESSÉG pontot szereztél</strong>. Tedd az ékkövet a hátizsákba, és hagyd el a szobát az északi ajtón át: lapozz a <a class="choice-link" href="#p90">90-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p32">
+            <span class="section-number">32.</span>
+            <p>Áthajítod a sajtot a Patkányok közé, és míg verekednek, kisurranykodsz az északi ajtón. Lapozz a <a class="choice-link" href="#p124">124-re</a>. Adj magadnak <strong>2 Szerencse pontot</strong>.</p>
+        </div>
+
+        <div class="section-point" id="p33">
+            <span class="section-number">33.</span>
+            <p>Az alvó Ork felébred. Elmenekülhetsz az ajtón át (lapozz a <a class="choice-link" href="#p320">320-ra</a>), vagy megküzdesz vele:</p>
+            <p><strong>Ork:</strong> ÜGYESSÉG 6, ÉLETERŐ 4</p>
+            <p>Ha legyőzted, elveheted a ládikát: lapozz a <a class="choice-link" href="#p147">147-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p34">
+            <span class="section-number">34.</span>
+            <p>A szerszámok között találsz egy fakalapácsot és egy <strong>színtiszta ezüst vésőt</strong>. Elveheted őket, ha valami mást ottfelejtesz cserébe. Zajt hallasz az északi ajtó felől: lapozz a <a class="choice-link" href="#p96">96-ra</a>.</p>
+        </div>
+
+        <div class="section-point" id="p35">
+            <span class="section-number">35.</span>
+            <p>Az ajtó bezárul, fojtogató gáz ömlik a szobába. Visszarohanhatsz az ajtóhoz és elmenekülhetsz (lapozz a <a class="choice-link" href="#p136">136-ra</a>), vagy visszatartod a lélegzeted a kulcsért: lapozz a <a class="choice-link" href="#p361">361-re</a>.</p>
+        </div>
+
+        <div class="section-point" id="p36">
+            <span class="section-number">36.</span>
+            <p>Émelyítő bűz fogad, és egy őrült öregember rohan feléd széklábat lóbálva. Ha megpróbálod lecsillapítani, lapozz a <a class="choice-link" href="#p263">263-ra</a>; ha karddal nekitámadsz, lapozz a <a class="choice-link" href="#p351">353-ra</a>.</p>
+        </div>
+
+        <div class="section-point" id="p37">
+            <span class="section-number">37.</span>
+            <p>Az útkereszteződésnél állsz. Elindulhatsz észak (lapozz a <a class="choice-link" href="#p366">366-ra</a>), nyugat (lapozz a <a class="choice-link" href="#p11">11-re</a>) vagy dél (lapozz a <a class="choice-link" href="#p277">277-re</a>) felé.</p>
+        </div>
+
+        <div class="section-point" id="p38">
+            <span class="section-number">38.</span>
+            <p>A Farkasember éléskamrájában ecetes tojásokat találsz. Ez két étkezésre elég (<strong>+2 Élelmiszerkészlet</strong>). Távozz a déli ajtón át: lapozz a <a class="choice-link" href="#p66">66-ra</a>.</p>
+        </div>
+
+        <div class="section-point" id="p39">
+            <span class="section-number">39.</span>
+            <p>Láthatatlanná váltál a Varázsló előtt! Amíg láthatatlan maradsz, <strong>+2 pontot adhatsz a Támadóerődhöz</strong>, és minden sikeres találatod <strong>3 pontot sebez</strong> a Varázsló Életerejéből. A küzdelem folytatódik...</p>
+        </div>
+    </main>
+
+</div>
+
+</body>
+</html>
